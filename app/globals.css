@@ -2,26 +2,74 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  color: var(--foreground);
-  background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+a {
+  @apply underline text-orange-400 hover:text-orange-600
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+}
+
+@layer base {
+
+
+  :root {
+    --background: 25 0% 95%;
+    --foreground: 25 0% 10%;
+    --card: 25 0% 90%;
+    --card-foreground: 25 0% 15%;
+    --popover: 25 0% 95%;
+    --popover-foreground: 25 95% 10%;
+    --primary: 25 49.7% 66.5%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 25 10% 70%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: -13 10% 85%;
+    --muted-foreground: 25 0% 40%;
+    --accent: -13 10% 80%;
+    --accent-foreground: 25 0% 15%;
+    --destructive: 0 50% 50%;
+    --destructive-foreground: 25 0% 90%;
+    --border: 25 20% 50%;
+    --input: 25 20% 50%;
+    --ring: 25 49.7% 66.5%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 25 10% 10%;
+    --foreground: 25 0% 90%;
+    --card: 25 0% 10%;
+    --card-foreground: 25 0% 90%;
+    --popover: 25 10% 5%;
+    --popover-foreground: 25 0% 90%;
+    --primary: 25 49.7% 66.5%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 25 10% 20%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: -13 10% 25%;
+    --muted-foreground: 25 0% 60%;
+    --accent: -13 10% 25%;
+    --accent-foreground: 25 0% 90%;
+    --destructive: 0 50% 50%;
+    --destructive-foreground: 25 0% 90%;
+    --border: 25 20% 50%;
+    --input: 25 20% 50%;
+    --ring: 25 49.7% 66.5%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 }
