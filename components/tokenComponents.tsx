@@ -5,19 +5,35 @@ import { Button } from "@/components/ui/button";
 export const TokenizerInput = () => {
     const [text, setText] = useState('');
     const [stats, setStats] = useState({ tokens: 0, chars: 0 });
+    const [error, setError] = useState('');
 
     const handleAnalyze = async () => {
-        const response = await fetch('/api', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text })
-        });
+        try {
+            setError('');
+            const response = await fetch('/api', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text })
+            });
 
-        const data = await response.json();
-        setStats({
-            tokens: data.input_tokens,
-            chars: text.length
-        });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            if (data.error) {
+                throw new Error(data.error);
+            }
+
+            setStats({
+                tokens: data.input_tokens,
+                chars: text.length
+            });
+        } catch (err) {
+            console.error('Analysis failed:', err);
+            setError('Failed to analyze text. Please try again.');
+            setStats({ tokens: 0, chars: 0 });
+        }
     };
 
     return (
@@ -36,6 +52,9 @@ export const TokenizerInput = () => {
                 >
                     Analyze Text
                 </Button>
+                {error && (
+                    <p className="text-red-500 text-sm">{error}</p>
+                )}
             </div>
             <TokenMetrics tokens={stats.tokens} chars={stats.chars} />
         </>
