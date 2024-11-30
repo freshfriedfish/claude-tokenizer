@@ -23,11 +23,11 @@ export default function TokenizerPage() {
         <div className="flex gap-8">
           <div className="space-y-1">
             <h2 className=" leading-none font-black">Tokens</h2>
-            <p className="text-4xl font-thin">123000000</p>
+            <p className="text-4xl font-thin">0</p>
           </div>
           <div className="space-y-1">
             <h2 className="font-black leading-none">Characters</h2>
-            <p className="text-4xl font-thin">789</p>
+            <p className="text-4xl font-thin">0</p>
           </div>
         </div>
       </div>
