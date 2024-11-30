@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 export const TokenizerInput = () => {
     const [text, setText] = useState('');
-    const [stats, setStats] = useState({ tokens: 0, chars: 0 });
+    const [stats, setStats] = useState<{ tokens: number | null, chars: number }>({ tokens: null, chars: 0 });
 
     const handleAnalyze = async () => {
         const response = await fetch('/api', {
@@ -15,7 +15,7 @@ export const TokenizerInput = () => {
 
         const data = await response.json();
         setStats({
-            tokens: data.input_tokens,
+            tokens: data.input_tokens > 7 ? data.input_tokens - 7 : 0,
             chars: text.length
         });
     };
@@ -37,7 +37,7 @@ export const TokenizerInput = () => {
                     Analyze Text
                 </Button>
             </div>
-            <TokenMetrics tokens={stats.tokens} chars={stats.chars} />
+            <TokenMetrics tokens={stats.tokens ?? 0} chars={stats.chars} />
         </>
     );
 };
