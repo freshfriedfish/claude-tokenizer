@@ -12,7 +12,7 @@ export default function TokenizerPage() {
         <p>
           Uses Anthropic's official <a href="https://docs.anthropic.com/en/docs/build-with-claude/token-counting">token counting</a> API. This is currently the only online tokenizer utilizing the official API. Beware of currently existing tokenizers, such as <a href="https://lunary.ai/anthropic-tokenizer">this</a> one, which are fake.</p>
         <p className="mb-8">
-          You may view the source code <a href="https://google.com">here</a>.</p>
+          You may view the source code <a href="https://github.com/freshfriedfish/claude-tokenizer">here</a>.</p>
         <TokenizerInput />
       </div>
     </div>
