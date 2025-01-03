@@ -1,24 +1,42 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
+// Debounce utility function
+const debounce = <T extends (...args: any[]) => void>(func: T, delay: number) => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+    return (...args: Parameters<T>) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func(...args), delay);
+    };
+};
+
 export const TokenizerInput = () => {
     const [text, setText] = useState('');
-    const [stats, setStats] = useState<{ tokens: number | null, chars: number }>({ tokens: null, chars: 0 });
+    const [stats, setStats] = useState<{ tokens: number | null; chars: number }>({ tokens: null, chars: 0 });
 
     const handleAnalyze = async () => {
         const response = await fetch('/api', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text })
+            body: JSON.stringify({ text }),
         });
 
         const data = await response.json();
         setStats({
             tokens: data.input_tokens > 7 ? data.input_tokens - 7 : 0,
-            chars: text.length
+            chars: text.length,
         });
     };
+
+    // Debounced version of handleAnalyze
+    const debouncedHandleAnalyze = useCallback(debounce(handleAnalyze, 500), []);
+
+    useEffect(() => {
+        if (text) {
+            debouncedHandleAnalyze();
+        }
+    }, [text, debouncedHandleAnalyze]);
 
     return (
         <>
@@ -30,19 +48,18 @@ export const TokenizerInput = () => {
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                 />
-                <Button
-                    onClick={handleAnalyze}
-                    variant="outline"
-                >
-                    Analyze Text
-                </Button>
             </div>
             <TokenMetrics tokens={stats.tokens ?? 0} chars={stats.chars} />
         </>
     );
 };
 
-export const TokenMetrics = ({ tokens, chars }: { tokens: number, chars: number }) => (
+interface TokenMetricsProps {
+    tokens: number;
+    chars: number;
+}
+
+export const TokenMetrics = ({ tokens, chars }: TokenMetricsProps) => (
     <div className="flex gap-8">
         <div className="space-y-1">
             <h2 className="leading-none font-black">Tokens</h2>
