@@ -2,12 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  body {
+    font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  }
 }
 
 a {
-  @apply underline text-orange-400 hover:text-orange-600
+  @apply text-orange-400 hover:text-orange-600
 }
 
 @layer utilities {

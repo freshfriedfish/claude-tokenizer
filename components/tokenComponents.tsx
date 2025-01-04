@@ -47,7 +47,7 @@ export const TokenizerInput = () => {
     };
 
     // Debounced version of handleAnalyze
-    const debouncedHandleAnalyze = useCallback(debounce(handleAnalyze, 500), []);
+    const debouncedHandleAnalyze = useCallback(debounce(handleAnalyze, 200), []);
 
     useEffect(() => {
         debouncedHandleAnalyze(text);
