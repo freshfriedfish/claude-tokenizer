@@ -9,10 +9,10 @@ import { Badge } from "@/components/ui/badge"
 export default function TokenizerPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-neutral-900">
-      <header>
-        <div className="w-full max-w-3xl px-4 flex justify-between items-center pt-4">
+      <header className="w-full max-w-3xl px-4">
+        <div className="flex justify-between items-center">
           <a href="/">
-            <img src="/shafdotfun.png" alt="Shaf.fun" className="h-8 " />
+            <img src="/shafdotfun.png" alt="Shaf.fun" className="h-8" />
           </a>
           <a href="/about" className="text-neutral-300 hover:text-white underline">about</a>
         </div>
