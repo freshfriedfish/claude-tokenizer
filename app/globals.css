@@ -9,7 +9,7 @@
 }
 
 a {
-  @apply text-orange-400 hover:text-orange-600
+  @apply text-orange-400 hover:text-orange-500
 }
 
 @layer utilities {
