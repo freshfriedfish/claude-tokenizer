@@ -58,6 +58,17 @@ export async function POST(req: Request) {
                 { status: 413 }
             );
         }
+
+        const content: ImageBlockParam[] = [
+            {
+                type: 'image',
+                source: {
+                type: 'base64',
+                media_type,
+                data: cleanedBase64,
+                },
+            },
+        ];
     } catch (error) {
         console.error('Image token-counting error:', error);
         return Response.json({ error: 'Failed to count tokens for image.' }, { status: 500 });
