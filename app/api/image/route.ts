@@ -18,3 +18,17 @@ type ImageBlockParam = {
         data: string;
     };
 };
+
+export async function POST(req: Request) {
+    try {
+        if (!req.headers.get('content-type')?.includes('application/json')) {
+            return Response.json(
+                { error: 'Unsupported content-type. Use application/json.' },
+                { status: 415 }
+            );
+        }
+    } catch (error) {
+        console.error('Image token-counting error:', error);
+        return Response.json({ error: 'Failed to count tokens for image.' }, { status: 500 });
+    }
+}
