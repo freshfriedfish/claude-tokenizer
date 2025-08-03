@@ -39,30 +39,66 @@ export const TokenizerInput = () => {
         });
     };
 
-    const handleAnalyze = async (text: string) => {
+    const handleAnalyze = async (inputData: InputData) => {
+        const { text, image } = inputData;
+
         if (!text.trim()) {
             setStats({ tokens: null, chars: 0 }); // Reset stats if text is empty
             setError(null); // Clear any previous errors
+            setIsLoading(false);
             return;
         }
 
-        try {
-            const response = await fetch('/api', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text }),
-            });
+        setIsLoading(true);
+        setError(null);
 
-            if (!response.ok) {
-                throw new Error(`API request failed with status ${response.status}`);
+        try {
+            let totalTokens = 0;
+
+            // Handle text input - call /api
+            if (text.trim()) {
+                const textResponse = await fetch('/api', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text }),
+                });
+
+                if (!textResponse.ok) {
+                    throw new Error(`Text API request failed with status ${textResponse.status}`);
+                }
+
+                const textData = await textResponse.json();
+                const textTokens = textData.input_tokens > 7 ? textData.input_tokens - 7 : 0;
+                totalTokens += textTokens;
             }
 
-            const data = await response.json();
+            // Handle image input - call /api/image
+            if (image) {
+                const imageBase64 = await convertImageToBase64(image);
+                const imageResponse = await fetch('/api/image', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        image: {
+                            data: imageBase64,
+                            type: image.type
+                        }
+                    }),
+                });
+
+                if (!imageResponse.ok) {
+                    throw new Error(`Image API request failed with status ${imageResponse.status}`);
+                }
+
+                const imageData = await imageResponse.json();
+                const imageTokens = imageData.input_tokens > 7 ? imageData.input_tokens - 7 : 0;
+                totalTokens += imageTokens;
+            }
+
             setStats({
-                tokens: data.input_tokens > 7 ? data.input_tokens - 7 : 0,
+                tokens: totalTokens,
                 chars: text.length,
             });
-            setError(null); // Clear any previous errors
         } catch (err) {
             console.error("Token counting error:", err);
             setError("Failed to analyze text. Please try again.");
@@ -74,7 +110,7 @@ export const TokenizerInput = () => {
     const debouncedHandleAnalyze = useCallback(debounce(handleAnalyze, 200), []);
 
     useEffect(() => {
-        debouncedHandleAnalyze(text);
+        debouncedHandleAnalyze({ text, image });
     }, [text, debouncedHandleAnalyze]);
 
     return (
