@@ -163,6 +163,68 @@ export const TokenizerInput = () => {
             </div>
             {error && <p className="text-red-500 mb-4">{error}</p>}
             <TokenMetrics tokens={stats.tokens ?? 0} chars={stats.chars} />
+        
+            
+                {/* Image Input */}
+                <div>
+                    <label className="block text-sm font-medium mb-2">Image Input</label>
+                    <div className="flex items-center gap-4">
+                        <div className="relative">
+                            <input
+                                id="image-input"
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageSelect}
+                                className="hidden"
+                            />
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => document.getElementById('image-input')?.click()}
+                                className="flex items-center gap-2"
+                            >
+                                <Upload size={16} />
+                                Select Image
+                            </Button>
+                        </div>
+                        
+                        {image && (
+                            <div className="flex items-center gap-2">
+                                <ImageIcon size={16} />
+                                <span className="text-sm text-gray-600">{image.name}</span>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={removeImage}
+                                    className="h-6 w-6 p-0"
+                                >
+                                    <X size={12} />
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Image Preview */}
+                    {imagePreview && (
+                        <div className="mt-3">
+                            <img
+                                src={imagePreview}
+                                alt="Preview"
+                                className="max-w-xs max-h-48 rounded-lg border"
+                            />
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {error && <p className="text-red-500 mb-4">{error}</p>}
+            
+            {isLoading && (
+                <p className="text-blue-500 mb-4">Analyzing content...</p>
+            )}
+
+            <TokenMetrics tokens={stats.tokens ?? 0} chars={stats.chars} hasImage={!!image} />
         </>
     );
 };
