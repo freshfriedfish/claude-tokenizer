@@ -27,6 +27,27 @@ export async function POST(req: Request) {
                 { status: 415 }
             );
         }
+
+        const body = (await req.json()) as Partial<ImagePayload>;
+        const { image, media_type } = body;
+
+        if (!image) {
+            return Response.json(
+                { error: 'Missing "image" property (base-64 string).' },
+                { status: 400 }
+            );
+        }
+
+        if (!media_type || !ALLOWED_MEDIA_TYPES.includes(media_type)) {
+            return Response.json(
+                {
+                    error: `Unsupported or missing media_type. Allowed types: ${ALLOWED_MEDIA_TYPES.join(
+                        ', '
+                    )}`,
+                },
+                { status: 400 }
+            );
+        }
     } catch (error) {
         console.error('Image token-counting error:', error);
         return Response.json({ error: 'Failed to count tokens for image.' }, { status: 500 });
