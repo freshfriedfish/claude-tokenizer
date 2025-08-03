@@ -153,18 +153,18 @@ export const TokenizerInput = () => {
     return (
         <>
             <div className="space-y-4 mb-4">
-                <Textarea
-                    placeholder="Enter some text"
-                    rows={10}
-                    className="font-mono"
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                />
-            </div>
-            {error && <p className="text-red-500 mb-4">{error}</p>}
-            <TokenMetrics tokens={stats.tokens ?? 0} chars={stats.chars} />
-        
-            
+                {/* Text Input */}
+                <div>
+                    <label className="block text-sm font-medium mb-2">Text Input</label>
+                    <Textarea
+                        placeholder="Enter some text"
+                        rows={6}
+                        className="font-mono"
+                        value={text}
+                        onChange={(e) => setText(e.target.value)}
+                    />
+                </div>
+
                 {/* Image Input */}
                 <div>
                     <label className="block text-sm font-medium mb-2">Image Input</label>
