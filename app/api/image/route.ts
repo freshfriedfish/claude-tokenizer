@@ -82,6 +82,8 @@ export async function POST(req: Request) {
                 },
             ],
         });
+
+        return Response.json(count);
     } catch (error) {
         console.error('Image token-counting error:', error);
         return Response.json({ error: 'Failed to count tokens for image.' }, { status: 500 });
