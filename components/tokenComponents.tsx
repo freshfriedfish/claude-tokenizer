@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { X, Upload, Image as ImageIcon } from 'lucide-react';
 
 // Debounce utility function
 const debounce = <T extends (...args: any[]) => void>(func: T, delay: number) => {
@@ -9,6 +11,11 @@ const debounce = <T extends (...args: any[]) => void>(func: T, delay: number) =>
         timeoutId = setTimeout(() => func(...args), delay);
     };
 };
+
+interface InputData {
+    text: string;
+    image: File | null;
+}
 
 export const TokenizerInput = () => {
     const [text, setText] = useState('');
