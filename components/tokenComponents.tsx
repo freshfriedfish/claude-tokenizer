@@ -232,17 +232,22 @@ export const TokenizerInput = () => {
 interface TokenMetricsProps {
     tokens: number;
     chars: number;
+    hasImage: boolean;
 }
 
-export const TokenMetrics = ({ tokens, chars }: TokenMetricsProps) => (
+export const TokenMetrics = ({ tokens, chars, hasImage }: TokenMetricsProps) => (
     <div className="flex gap-8">
         <div className="space-y-1">
             <h2 className="leading-none font-black">Tokens</h2>
             <p className="text-4xl font-thin">{tokens}</p>
+            {hasImage && (
+                <p className="text-sm text-gray-500">includes image tokens</p>
+            )}
         </div>
         <div className="space-y-1">
             <h2 className="font-black leading-none">Characters</h2>
             <p className="text-4xl font-thin">{chars}</p>
+            <p className="text-sm text-gray-500">text only</p>
         </div>
     </div>
 );
