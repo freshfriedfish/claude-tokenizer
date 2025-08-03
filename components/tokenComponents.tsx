@@ -41,10 +41,11 @@ export const TokenizerInput = () => {
 
     const handleAnalyze = async (inputData: InputData) => {
         const { text, image } = inputData;
-
-        if (!text.trim()) {
-            setStats({ tokens: null, chars: 0 }); // Reset stats if text is empty
-            setError(null); // Clear any previous errors
+        
+        // If both text and image are empty, reset stats
+        if (!text.trim() && !image) {
+            setStats({ tokens: null, chars: 0 });
+            setError(null);
             setIsLoading(false);
             return;
         }
@@ -57,71 +58,99 @@ export const TokenizerInput = () => {
 
             // Handle text input - call /api
             if (text.trim()) {
+                console.log('Making text API call with:', { text });
                 const textResponse = await fetch('/api', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ text }),
                 });
 
+                console.log('Text API response status:', textResponse.status);
+                
                 if (!textResponse.ok) {
-                    throw new Error(`Text API request failed with status ${textResponse.status}`);
+                    const errorText = await textResponse.text();
+                    console.error('Text API error:', errorText);
+                    throw new Error(`Text API request failed with status ${textResponse.status}: ${errorText}`);
                 }
 
                 const textData = await textResponse.json();
+                console.log('Text API response data:', textData);
                 const textTokens = textData.input_tokens > 7 ? textData.input_tokens - 7 : 0;
                 totalTokens += textTokens;
+                console.log('Text tokens calculated:', textTokens);
             }
 
             // Handle image input - call /api/image
             if (image) {
+                console.log('Processing image:', image.name, image.type, image.size);
                 const imageBase64 = await convertImageToBase64(image);
+                console.log('Image converted to base64, length:', imageBase64.length);
+                
+                const allowedTypes = ['image/png', 'image/jpeg', 'image/webp'] as const;
+                if (!allowedTypes.includes(image.type as any)) {
+                    throw new Error(`Unsupported image type: ${image.type}`);
+                }
+                
+                const requestPayload = {
+                    image: imageBase64,  // base64 string without data URL prefix
+                    media_type: image.type as 'image/png' | 'image/jpeg' | 'image/webp'
+                };
+                console.log('Making image API call with payload:', {
+                    ...requestPayload,
+                    image: `[base64 data ${imageBase64.length} chars]` // Don't log full base64
+                });
+                
                 const imageResponse = await fetch('/api/image', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        image: {
-                            data: imageBase64,
-                            type: image.type
-                        }
-                    }),
+                    body: JSON.stringify(requestPayload),
                 });
 
+                console.log('Image API response status:', imageResponse.status);
+
                 if (!imageResponse.ok) {
-                    throw new Error(`Image API request failed with status ${imageResponse.status}`);
+                    const errorText = await imageResponse.text();
+                    console.error('Image API error:', errorText);
+                    throw new Error(`Image API request failed with status ${imageResponse.status}: ${errorText}`);
                 }
 
                 const imageData = await imageResponse.json();
+                console.log('Image API response data:', imageData);
                 const imageTokens = imageData.input_tokens > 7 ? imageData.input_tokens - 7 : 0;
                 totalTokens += imageTokens;
+                console.log('Image tokens calculated:', imageTokens);
             }
 
+            console.log('Total tokens:', totalTokens);
             setStats({
                 tokens: totalTokens,
                 chars: text.length,
             });
         } catch (err) {
             console.error("Token counting error:", err);
-            setError("Failed to analyze text. Please try again.");
-            setStats({ tokens: null, chars: text.length }); // Reset tokens but keep character count
+            setError("Failed to analyze content. Please try again.");
+            setStats({ tokens: null, chars: text.length });
         } finally {
             setIsLoading(false);
         }
     };
 
     // Debounced version of handleAnalyze
-    const debouncedHandleAnalyze = useCallback(debounce(handleAnalyze, 200), []);
+    const debouncedHandleAnalyze = useCallback(debounce(handleAnalyze, 500), []);
 
     useEffect(() => {
         debouncedHandleAnalyze({ text, image });
-    }, [text, debouncedHandleAnalyze]);
+    }, [text, image, debouncedHandleAnalyze]);
 
     const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
-            if (!file.type.startsWith('image/')) {
-                setError('Please select a valid image file.');
+            const allowedTypes = ['image/png', 'image/jpeg', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                setError(`Please select a valid image file. Supported formats: ${allowedTypes.join(', ')}`);
                 return;
             }
+
             const maxSize = 10 * 1024 * 1024; // 10MB
             if (file.size > maxSize) {
                 setError('Image file is too large. Please select a file smaller than 10MB.');
@@ -131,7 +160,6 @@ export const TokenizerInput = () => {
             setImage(file);
             setError(null);
 
-            // Create preview
             const reader = new FileReader();
             reader.onload = (e) => {
                 setImagePreview(e.target?.result as string);
@@ -143,7 +171,7 @@ export const TokenizerInput = () => {
     const removeImage = () => {
         setImage(null);
         setImagePreview(null);
-        // Reset file input
+
         const fileInput = document.getElementById('image-input') as HTMLInputElement;
         if (fileInput) {
             fileInput.value = '';
@@ -173,7 +201,7 @@ export const TokenizerInput = () => {
                             <input
                                 id="image-input"
                                 type="file"
-                                accept="image/*"
+                                accept="image/png,image/jpeg,image/webp"
                                 onChange={handleImageSelect}
                                 className="hidden"
                             />
