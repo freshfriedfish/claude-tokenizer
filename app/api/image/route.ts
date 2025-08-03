@@ -48,6 +48,16 @@ export async function POST(req: Request) {
                 { status: 400 }
             );
         }
+
+        const cleanedBase64 = image.replace(/^data:[^;]+;base64,/, '');
+        const buffer = Buffer.from(cleanedBase64, 'base64');
+
+        if (buffer.length > MAX_IMAGE_BYTES) {
+            return Response.json(
+                { error: `Image exceeds the ${MAX_IMAGE_BYTES / 1024 / 1024} MiB limit.` },
+                { status: 413 }
+            );
+        }
     } catch (error) {
         console.error('Image token-counting error:', error);
         return Response.json({ error: 'Failed to count tokens for image.' }, { status: 500 });
