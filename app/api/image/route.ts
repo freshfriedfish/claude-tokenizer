@@ -69,6 +69,19 @@ export async function POST(req: Request) {
                 },
             },
         ];
+
+        const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+        const count = await anthropic.beta.messages.countTokens({
+            betas: ['token-counting-2024-11-01'],
+            model: 'claude-3-5-sonnet-20241022',
+            messages: [
+                {
+                    role: 'user',
+                    content,
+                },
+            ],
+        });
     } catch (error) {
         console.error('Image token-counting error:', error);
         return Response.json({ error: 'Failed to count tokens for image.' }, { status: 500 });
