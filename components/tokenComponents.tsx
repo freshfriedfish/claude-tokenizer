@@ -103,6 +103,8 @@ export const TokenizerInput = () => {
             console.error("Token counting error:", err);
             setError("Failed to analyze text. Please try again.");
             setStats({ tokens: null, chars: text.length }); // Reset tokens but keep character count
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -112,6 +114,31 @@ export const TokenizerInput = () => {
     useEffect(() => {
         debouncedHandleAnalyze({ text, image });
     }, [text, debouncedHandleAnalyze]);
+
+    const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            if (!file.type.startsWith('image/')) {
+                setError('Please select a valid image file.');
+                return;
+            }
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            if (file.size > maxSize) {
+                setError('Image file is too large. Please select a file smaller than 10MB.');
+                return;
+            }
+
+            setImage(file);
+            setError(null);
+
+            // Create preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                setImagePreview(e.target?.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
     return (
         <>
