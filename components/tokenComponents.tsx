@@ -140,6 +140,16 @@ export const TokenizerInput = () => {
         }
     };
 
+    const removeImage = () => {
+        setImage(null);
+        setImagePreview(null);
+        // Reset file input
+        const fileInput = document.getElementById('image-input') as HTMLInputElement;
+        if (fileInput) {
+            fileInput.value = '';
+        }
+    };
+
     return (
         <>
             <div className="space-y-4 mb-4">
