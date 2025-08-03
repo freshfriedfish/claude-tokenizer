@@ -9,3 +9,12 @@ interface ImagePayload {
   media_type: AllowedMediaType;
   text?: string;
 }
+
+type ImageBlockParam = {
+    type: 'image';
+    source: {
+        type: 'base64';
+        media_type: AllowedMediaType;
+        data: string;
+    };
+};
