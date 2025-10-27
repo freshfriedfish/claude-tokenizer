@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { X, Upload, Image as ImageIcon } from 'lucide-react';
+import { X, Upload, Image as ImageIcon, FileText } from 'lucide-react';
 
 // Debounce utility function
 const debounce = <T extends (...args: any[]) => void>(func: T, delay: number) => {
@@ -15,12 +15,14 @@ const debounce = <T extends (...args: any[]) => void>(func: T, delay: number) =>
 interface InputData {
     text: string;
     image: File | null;
+    pdf: File | null;
 }
 
 export const TokenizerInput = () => {
     const [text, setText] = useState('');
     const [image, setImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [pdf, setPdf] = useState<File | null>(null);
     const [stats, setStats] = useState<{ tokens: number | null; chars: number }>({ tokens: null, chars: 0 });
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -39,11 +41,25 @@ export const TokenizerInput = () => {
         });
     };
 
+    const convertPDFToBase64 = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const result = reader.result as string;
+                // Remove the data URL prefix (e.g., "data:application/pdf;base64,")
+                const base64 = result.split(',')[1];
+                resolve(base64);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    };
+
     const handleAnalyze = async (inputData: InputData) => {
-        const { text, image } = inputData;
-        
-        // If both text and image are empty, reset stats
-        if (!text.trim() && !image) {
+        const { text, image, pdf } = inputData;
+
+        // If text, image, and pdf are all empty, reset stats
+        if (!text.trim() && !image && !pdf) {
             setStats({ tokens: null, chars: 0 });
             setError(null);
             setIsLoading(false);
@@ -121,6 +137,46 @@ export const TokenizerInput = () => {
                 console.log('Image tokens calculated:', imageTokens);
             }
 
+            // Handle PDF input - call /api/pdf
+            if (pdf) {
+                console.log('Processing PDF:', pdf.name, pdf.type, pdf.size);
+                const pdfBase64 = await convertPDFToBase64(pdf);
+                console.log('PDF converted to base64, length:', pdfBase64.length);
+
+                if (pdf.type !== 'application/pdf') {
+                    throw new Error(`Unsupported PDF type: ${pdf.type}`);
+                }
+
+                const requestPayload = {
+                    pdf: pdfBase64,  // base64 string without data URL prefix
+                    media_type: 'application/pdf'
+                };
+                console.log('Making PDF API call with payload:', {
+                    ...requestPayload,
+                    pdf: `[base64 data ${pdfBase64.length} chars]` // Don't log full base64
+                });
+
+                const pdfResponse = await fetch('/api/pdf', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestPayload),
+                });
+
+                console.log('PDF API response status:', pdfResponse.status);
+
+                if (!pdfResponse.ok) {
+                    const errorText = await pdfResponse.text();
+                    console.error('PDF API error:', errorText);
+                    throw new Error(`PDF API request failed with status ${pdfResponse.status}: ${errorText}`);
+                }
+
+                const pdfData = await pdfResponse.json();
+                console.log('PDF API response data:', pdfData);
+                const pdfTokens = pdfData.input_tokens > 7 ? pdfData.input_tokens - 7 : 0;
+                totalTokens += pdfTokens;
+                console.log('PDF tokens calculated:', pdfTokens);
+            }
+
             console.log('Total tokens:', totalTokens);
             setStats({
                 tokens: totalTokens,
@@ -139,8 +195,8 @@ export const TokenizerInput = () => {
     const debouncedHandleAnalyze = useCallback(debounce(handleAnalyze, 500), []);
 
     useEffect(() => {
-        debouncedHandleAnalyze({ text, image });
-    }, [text, image, debouncedHandleAnalyze]);
+        debouncedHandleAnalyze({ text, image, pdf });
+    }, [text, image, pdf, debouncedHandleAnalyze]);
 
     const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -173,6 +229,34 @@ export const TokenizerInput = () => {
         setImagePreview(null);
 
         const fileInput = document.getElementById('image-input') as HTMLInputElement;
+        if (fileInput) {
+            fileInput.value = '';
+        }
+    };
+
+    const handlePDFSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            if (file.type !== 'application/pdf') {
+                setError('Please select a valid PDF file.');
+                return;
+            }
+
+            const maxSize = 32 * 1024 * 1024; // 32MB
+            if (file.size > maxSize) {
+                setError('PDF file is too large. Please select a file smaller than 32MB.');
+                return;
+            }
+
+            setPdf(file);
+            setError(null);
+        }
+    };
+
+    const removePDF = () => {
+        setPdf(null);
+
+        const fileInput = document.getElementById('pdf-input') as HTMLInputElement;
         if (fileInput) {
             fileInput.value = '';
         }
@@ -244,6 +328,47 @@ export const TokenizerInput = () => {
                         </div>
                     )}
                 </div>
+
+                {/* PDF Input */}
+                <div>
+                    <label className="block text-sm font-medium mb-2">PDF Input</label>
+                    <div className="flex items-center gap-4">
+                        <div className="relative">
+                            <input
+                                id="pdf-input"
+                                type="file"
+                                accept="application/pdf"
+                                onChange={handlePDFSelect}
+                                className="hidden"
+                            />
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => document.getElementById('pdf-input')?.click()}
+                                className="flex items-center gap-2"
+                            >
+                                <Upload size={16} />
+                                Select PDF
+                            </Button>
+                        </div>
+
+                        {pdf && (
+                            <div className="flex items-center gap-2">
+                                <FileText size={16} />
+                                <span className="text-sm text-gray-600">{pdf.name}</span>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={removePDF}
+                                    className="h-6 w-6 p-0"
+                                >
+                                    <X size={12} />
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
 
             {error && <p className="text-red-500 mb-4">{error}</p>}
@@ -252,7 +377,7 @@ export const TokenizerInput = () => {
                 <p className="text-blue-500 mb-4">Analyzing content...</p>
             )}
 
-            <TokenMetrics tokens={stats.tokens ?? 0} chars={stats.chars} hasImage={!!image} />
+            <TokenMetrics tokens={stats.tokens ?? 0} chars={stats.chars} hasImage={!!image} hasPdf={!!pdf} />
         </>
     );
 };
@@ -261,15 +386,18 @@ interface TokenMetricsProps {
     tokens: number;
     chars: number;
     hasImage: boolean;
+    hasPdf: boolean;
 }
 
-export const TokenMetrics = ({ tokens, chars, hasImage }: TokenMetricsProps) => (
+export const TokenMetrics = ({ tokens, chars, hasImage, hasPdf }: TokenMetricsProps) => (
     <div className="flex gap-8">
         <div className="space-y-1">
             <h2 className="leading-none font-black">Tokens</h2>
             <p className="text-4xl font-thin">{tokens}</p>
-            {hasImage && (
-                <p className="text-sm text-gray-500">includes image tokens</p>
+            {(hasImage || hasPdf) && (
+                <p className="text-sm text-gray-500">
+                    includes {hasImage && hasPdf ? 'image and PDF' : hasImage ? 'image' : 'PDF'} tokens
+                </p>
             )}
         </div>
         <div className="space-y-1">
