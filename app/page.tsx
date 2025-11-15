@@ -20,17 +20,29 @@ export default function TokenizerPage() {
     <>
 
       <div className="w-full max-w-3xl px-4">
-        <h1 className="text-3xl font-bold mb-8">
+        <h1 className="text-3xl font-bold mb-8 text-foreground">
           Claude Tokenizer
         </h1>
-        <h2 className="text-lg font-bold mb-4">The Official Unofficial Tokenizer for Claude
-
-        </h2>
 
         <div className="mb-8">
-          <p>
-            The first and only tokenizer that actually uses the official API.
+          <h2 className="text-lg font-semibold mb-4 text-foreground">
+            The official unofficial tokenizer for Claude
+          </h2>
+          <p className="text-base text-muted-foreground mb-4 leading-relaxed">
+            You can use the tool below to understand how a piece of text might be tokenized by a language model, and the total count of tokens in that piece of text.
           </p>
+
+          <p className="text-base text-muted-foreground leading-relaxed">
+            This is the most accurate tokenizer as it is the only one which calls the{" "}
+            <a
+              href="https://docs.claude.com/en/api/messages-count-tokens"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              official API.
+            </a>
+          </p>
+
         </div>
 
         <TokenizerInput />

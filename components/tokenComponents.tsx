@@ -183,7 +183,7 @@ export const TokenizerInput = () => {
             <div className="space-y-4 mb-4">
                 {/* Text Input */}
                 <div>
-                    <label className="block text-sm font-medium mb-2">Text Input</label>
+                    <label className="block text-sm font-medium mb-2 text-foreground">Text Input</label>
                     <Textarea
                         placeholder="Enter some text"
                         rows={6}
@@ -195,7 +195,7 @@ export const TokenizerInput = () => {
 
                 {/* Image Input */}
                 <div>
-                    <label className="block text-sm font-medium mb-2">Image Input</label>
+                    <label className="block text-sm font-medium mb-2 text-foreground">Image Input</label>
                     <div className="flex items-center gap-4">
                         <div className="relative">
                             <input
@@ -218,8 +218,8 @@ export const TokenizerInput = () => {
 
                         {image && (
                             <div className="flex items-center gap-2">
-                                <ImageIcon size={16} />
-                                <span className="text-sm text-gray-600">{image.name}</span>
+                                <ImageIcon size={16} className="text-muted-foreground" />
+                                <span className="text-sm text-muted-foreground">{image.name}</span>
                                 <Button
                                     type="button"
                                     variant="ghost"
@@ -239,14 +239,14 @@ export const TokenizerInput = () => {
                             <img
                                 src={imagePreview}
                                 alt="Preview"
-                                className="max-w-xs max-h-48 rounded-lg border"
+                                className="max-w-xs max-h-48 rounded-lg border border-border"
                             />
                         </div>
                     )}
                 </div>
             </div>
 
-            {error && <p className="text-red-500 mb-4">{error}</p>}
+            {error && <p className="text-destructive mb-4">{error}</p>}
             <TokenMetrics tokens={stats.tokens ?? 0} chars={stats.chars} hasImage={!!image} />
         </>
     );
@@ -261,16 +261,16 @@ interface TokenMetricsProps {
 export const TokenMetrics = ({ tokens, chars, hasImage }: TokenMetricsProps) => (
     <div className="flex gap-8">
         <div className="space-y-1">
-            <h2 className="leading-none font-black">Tokens</h2>
-            <p className="text-4xl font-thin">{tokens}</p>
+            <h2 className="leading-none font-black text-foreground">Tokens</h2>
+            <p className="text-4xl font-thin text-foreground">{tokens}</p>
             {hasImage && (
-                <p className="text-sm text-gray-500">includes image tokens</p>
+                <p className="text-sm text-muted-foreground">includes image tokens</p>
             )}
         </div>
         <div className="space-y-1">
-            <h2 className="font-black leading-none">Characters</h2>
-            <p className="text-4xl font-thin">{chars}</p>
-            <p className="text-sm text-gray-500">text only</p>
+            <h2 className="font-black leading-none text-foreground">Characters</h2>
+            <p className="text-4xl font-thin text-foreground">{chars}</p>
+            <p className="text-sm text-muted-foreground">text only</p>
         </div>
     </div>
 );
