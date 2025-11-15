@@ -10,7 +10,7 @@ export default function TokenizerPage() {
   useEffect(() => {
     // Small delay to ensure Sonner is ready
     const timer = setTimeout(() => {
-      toast("Updated to fix website erroring out. Sorry!");
+      toast("Updated to fix recent bugs, sorry for the delay!");
     }, 100);
 
     return () => clearTimeout(timer);
@@ -20,17 +20,18 @@ export default function TokenizerPage() {
     <>
 
       <div className="w-full max-w-3xl px-4">
-        <h1 className="bg-gradient-to-r from-white to-black bg-clip-text text-5xl font-bold text-transparent mb-4 mt-8">
-          Claude-Tokenizer
-          <Badge className="mx-2 font-black">NEW</Badge>
+        <h1 className="text-3xl font-bold mb-8">
+          Claude Tokenizer
         </h1>
-
-        <h2 className="text-xl font-bold mb-4">A Tokenizer for Claude 4
+        <h2 className="text-lg font-bold mb-4">The Official Unofficial Tokenizer for Claude
 
         </h2>
 
-        <p className="mb-8">
-          This tool uses Anthropic's newly released <a href="https://docs.anthropic.com/en/docs/build-with-claude/token-counting">token counting api</a> to count the number of tokens in a given text. Beware of <a href="https://lunary.ai/anthropic-tokenizer">existing tokenizers</a> which are not accurate. Explore the source code <a href="https://github.com/freshfriedfish/claude-tokenizer">here</a>.</p>
+        <div className="mb-8">
+          <p>
+            The first and only tokenizer that actually uses the official API.
+          </p>
+        </div>
 
         <TokenizerInput />
       </div>
