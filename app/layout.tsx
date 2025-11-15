@@ -18,7 +18,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "Claude Tokenizer",
-  description: "A Tokenizer for Claude 3.7 Sonnet",
+  description: "A Tokenizer for Claude family models",
 };
 
 export default function RootLayout({

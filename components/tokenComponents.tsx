@@ -41,7 +41,7 @@ export const TokenizerInput = () => {
 
     const handleAnalyze = async (inputData: InputData) => {
         const { text, image } = inputData;
-        
+
         // If both text and image are empty, reset stats
         if (!text.trim() && !image) {
             setStats({ tokens: null, chars: 0 });
@@ -66,7 +66,7 @@ export const TokenizerInput = () => {
                 });
 
                 console.log('Text API response status:', textResponse.status);
-                
+
                 if (!textResponse.ok) {
                     const errorText = await textResponse.text();
                     console.error('Text API error:', errorText);
@@ -85,12 +85,12 @@ export const TokenizerInput = () => {
                 console.log('Processing image:', image.name, image.type, image.size);
                 const imageBase64 = await convertImageToBase64(image);
                 console.log('Image converted to base64, length:', imageBase64.length);
-                
+
                 const allowedTypes = ['image/png', 'image/jpeg', 'image/webp'] as const;
                 if (!allowedTypes.includes(image.type as any)) {
                     throw new Error(`Unsupported image type: ${image.type}`);
                 }
-                
+
                 const requestPayload = {
                     image: imageBase64,  // base64 string without data URL prefix
                     media_type: image.type as 'image/png' | 'image/jpeg' | 'image/webp'
@@ -99,7 +99,7 @@ export const TokenizerInput = () => {
                     ...requestPayload,
                     image: `[base64 data ${imageBase64.length} chars]` // Don't log full base64
                 });
-                
+
                 const imageResponse = await fetch('/api/image', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -215,7 +215,7 @@ export const TokenizerInput = () => {
                                 Select Image
                             </Button>
                         </div>
-                        
+
                         {image && (
                             <div className="flex items-center gap-2">
                                 <ImageIcon size={16} />
@@ -247,11 +247,6 @@ export const TokenizerInput = () => {
             </div>
 
             {error && <p className="text-red-500 mb-4">{error}</p>}
-            
-            {isLoading && (
-                <p className="text-blue-500 mb-4">Analyzing content...</p>
-            )}
-
             <TokenMetrics tokens={stats.tokens ?? 0} chars={stats.chars} hasImage={!!image} />
         </>
     );

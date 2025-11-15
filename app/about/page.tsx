@@ -36,9 +36,13 @@ export default function AboutPage() {
                 Supported Models:
             </p>
             <ul className="list-disc pl-5">
-                <li>Claude 3.5 Haiku</li>
-                <li>Claude 3.5 Sonnet</li>
-                <li>Claude 3.7 Sonnet</li>
+                <li>Claude Opus 4</li>
+                <li>Claude Sonnet 4</li>
+                <li>Claude Sonnet 3.7</li>
+                <li>Claude Sonnet 3.5</li>
+                <li>Claude Haiku 3.5</li>
+                <li>Claude Haiku 3</li>
+                <li>Claude Opus 3</li>
             </ul>
         </div>
     );
