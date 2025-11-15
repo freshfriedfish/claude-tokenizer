@@ -1,0 +1,4 @@
+---
+alwaysApply: true
+---
+This is a next.js 14 (App router) + tailwind + shadcn project. Use tailwind semantics for styling. 

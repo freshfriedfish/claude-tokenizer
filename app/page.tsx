@@ -1,10 +1,21 @@
 // app/page.tsx
 "use client";
 
+import { useEffect } from "react";
 import { TokenizerInput } from "../components/tokenComponents";
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 export default function TokenizerPage() {
+  useEffect(() => {
+    // Small delay to ensure Sonner is ready
+    const timer = setTimeout(() => {
+      toast("Updated to fix website erroring out. Sorry!");
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <>
 
